@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>    
+    <extension point="org.eclipse.ui.commands">
+    	<command
+    		id="fr.loria.dedale.bsimu.jeb.generateCommand"
+    		description="Generate JeB simulators">
+    	</command>
+    </extension>
+	<extension point="org.eclipse.ui.handlers">
+       <handler
+             class="bsimu.jeb.JeBHandler"
+             commandId="fr.loria.dedale.bsimu.jeb.generateCommand">
+       </handler>
+    </extension>
+    <extension point="org.eclipse.ui.menus">
+       <menuContribution
+             locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+          <toolbar
+                id="fr.loria.dedale.bsimu.jeb.toolbars.sampleToolbar">
+             <command
+                   commandId="fr.loria.dedale.bsimu.jeb.generateCommand"
+                   id="fr.loria.dedale.bsimu.jeb.toolbars.sampleToolbar.sampleCommand"
+                   label="JeB"
+                   style="push"
+                   tooltip="Generate simulators">
+             </command>
+          </toolbar>
+       </menuContribution>
+    </extension>
+</plugin>
