@@ -330,6 +330,7 @@ public class BSimuFormula {
 		for (BoundIdentDecl boundIdentDecl : boundIdentDecls) {
 			boundIdentDeclList.add(boundIdentDecl);
 		}
+		String transformedPredicate = "";
 
 		int tag = quantifiedPredicate.getTag();
 		StringBuilder result = new StringBuilder();
@@ -347,7 +348,8 @@ public class BSimuFormula {
 	    List<String> dependencyOrder = new ArrayList<String>();
 		domainArray.append("[");
 
-		for (int i = 0; i < quantifiers.length; i++) {
+		for (int i = 0; i < quantifiers.length; i++)
+		{
 			String name = quantifiers[i].getName();
 			quantifiersString.append(name);
 			domainArray.append(parseDomain(name, predicate));
@@ -356,7 +358,7 @@ public class BSimuFormula {
 					quantifiersString.append(", ");
 					domainArray.append(", ");
 				}
-			if(predicate instanceof AssociativePredicate && tag == 851)
+			if(tag == 851)
 			{
 				domSize = domainArray2.size() - 1;
 				for(int k = 0; k < quantifiers.length; k++)					
@@ -372,39 +374,41 @@ public class BSimuFormula {
 					}
 			}
 		}
+		if(dependentQuantifiers.size()>0)
+		{
+			
+				transformedPredicate = transformQuantifiedPredicate(quantifiedPredicate,dependentQuantifiers, independentQuantifiers);
+				fileWr(transformedPredicate, "");
+				while (boundIdentDeclList.size() > originalSize) {
+					boundIdentDeclList.remove(boundIdentDeclList.size() - 1);
+				}
+				return transformedPredicate;
+		}
 		
-		//0nsformQuantifedPredicate(quantifiedPredicate);
-		
-		
-	//	domainArray.append("]");
-		//if(depend !="")
-			//{
-				//fileWr(depend,"");
-				//fileWr(depend2, "");
-			//}
-		//depend = "";
-		//depend2 = "";
+		else
+		{
 			
 
-		String predicateFunction = "function(" + quantifiersString
-				+ "){return " + parsePredicate(predicate) + ";}";
-
-		switch (tag) {
-		case Formula.FORALL:
-			result.append("$B.forAll(" + predicateFunction + ", " + domainArray
-					+ ")");
-			break;
-		case Formula.EXISTS:
-			result.append("$B.exists(" + predicateFunction + ", " + domainArray
-					+ ")");
-			break;
+			String predicateFunction = "function(" + quantifiersString
+					+ "){return " + parsePredicate(predicate) + ";}";
+	
+			switch (tag) {
+			case Formula.FORALL:
+				result.append("$B.forAll(" + predicateFunction + ", " + domainArray
+						+ ")");
+				break;
+			case Formula.EXISTS:
+				result.append("$B.exists(" + predicateFunction + ", " + domainArray
+						+ ")");
+				break;
+			}
+	
+			while (boundIdentDeclList.size() > originalSize) {
+				boundIdentDeclList.remove(boundIdentDeclList.size() - 1);
+			}
+	
+			return result.toString();
 		}
-
-		while (boundIdentDeclList.size() > originalSize) {
-			boundIdentDeclList.remove(boundIdentDeclList.size() - 1);
-		}
-
-		return result.toString();
 	}
 
 	private String parseMultiplePredicate(MultiplePredicate multiplePredicate) {
@@ -762,6 +766,9 @@ public class BSimuFormula {
 		{
 				fina = transformQuantifiedExpression(quantifiedExpression, dependentQuantifiers,independentQuantifiers);
 				fileWr(fina, "");
+				while (boundIdentDeclList.size() > originalSize) {
+					boundIdentDeclList.remove(boundIdentDeclList.size() - 1);
+				}
 				return fina;
 		}
 		else
@@ -799,19 +806,9 @@ public class BSimuFormula {
 				boundIdentDeclList.remove(boundIdentDeclList.size() - 1);
 			}
 
-			
+			return result.toString();
 			
 		}
-		return result.toString();
-		//parseExpression(test);
-		//if(depend != "")
-		//{
-			//fileWr(depend, "");
-			//fileWr(depend2, "");
-		//}
-		//depend ="";
-		//depend2 ="";
-
 		
 	}
 	public String transformQuantifiedExpression(QuantifiedExpression quantifiedExpression, List<String> dependentQuantifiers, List<String> independentQuantifiers)
@@ -885,7 +882,7 @@ public class BSimuFormula {
 					Expression left = relationalPredicate.getLeft();
 					Expression right = relationalPredicate.getRight();
 					result = parseExpression(left);
-					RelationalPredicate rel = (RelationalPredicate) chi.get(i);
+					//RelationalPredicate rel = (RelationalPredicate) chi.get(i);
 					
 					
 					
@@ -947,7 +944,7 @@ public class BSimuFormula {
 				counter++;
 			}
 			m--;
-			int a =0;
+			//int a =0;
 			
 		}
 		Expression finalUnaryFormula = ff.makeUnaryExpression(Formula.KUNION,quantifiedExpressions.get(quantifiedExpressions.size()-1) , null);
@@ -961,136 +958,170 @@ public class BSimuFormula {
 		return returnedFinalFormula;
 }
 	
-private void transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredicate, List<String> dependentQuantifiers, List<String> independentQuantifiers) {
+private String transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredicate, List<String> dependentQuantifiers, List<String> independentQuantifiers) {
 
-	
-	Predicate predicate = quantifiedPredicate.getPredicate();
-	BoundIdentDecl[] quantifiers = quantifiedPredicate
-			.getBoundIdentDecls();
-	ArrayList orderedList = new ArrayList<>();
-	Graph g = new Graph(independentQuantifiers.size());
-	List<BoundIdentDecl> newQuantifiersOuter= new ArrayList<BoundIdentDecl>();
-	List<BoundIdentDecl> newQuantifiersInner= new ArrayList<BoundIdentDecl>();
-	List<BoundIdentDecl> newQuantifiersFullyDependent = new ArrayList<BoundIdentDecl>();
-	HashMap<String, Integer> exchangeTable = new HashMap<String, Integer>();
-		for(int z = 0; z < quantifiers.length; z++)
-		{
-			exchangeTable.put(quantifiers[z].toString(), z);
-		}
-	
-		for(int it = 0; it < independentQuantifiers.size(); it++)
-		{
-			//for(int jt = 0; jt < dependentQuantifiers.size(); jt++)
-			//{
-			//	if (it == jt)
-			//	{
-					g.addEdge(exchangeTable.get(independentQuantifiers.get(it)), exchangeTable.get(dependentQuantifiers.get(it)));
-			//	}
-			//}
-		}
+			Predicate predicate = quantifiedPredicate.getPredicate();
+			//Expression expression = quantifiedExpression.getExpression();
+			BoundIdentDecl[] quantifiers = quantifiedPredicate
+					.getBoundIdentDecls();
+			HashMap<String, Integer> exchangeTable = new HashMap<String, Integer>();
+			int tag = predicate.getTag();
+			String result;
+			ArrayList<Integer> orderedList = new ArrayList<Integer>();
+			ArrayList<ArrayList<BoundIdentDecl>> Identifiers = new ArrayList<ArrayList<BoundIdentDecl>>();
+			ArrayList<ArrayList<Predicate>> Predicates = new ArrayList<ArrayList<Predicate>>();
+			ArrayList<Predicate> associativePredicates = new ArrayList<Predicate>();
+			ArrayList<BinaryPredicate> BinaryPredicates = new ArrayList<BinaryPredicate>();
+			ArrayList<RelationalPredicate> chi = new ArrayList<>();
+			ArrayList<QuantifiedPredicate> QuantifiedPredicatesInner = new ArrayList<QuantifiedPredicate>(); 
+			FormulaFactory ff = predicate.getFactory();
+			ArrayList<Predicate> rightPredicates = new ArrayList<Predicate>();
+			//Form iForm = quantifiedPredicate.getForm();
+			Graph g =  new Graph(quantifiers.length);
+			for(int z = 0; z < quantifiers.length; z++)
+			{
+				exchangeTable.put(quantifiers[z].toString(), z);
+			}
 		
-		orderedList = g.top_sort();
-		fileWr(orderedList.toString(), " ");
-		//char[] ch = new char[orderedList.length()];
-		 
-       // for (int i = 0; i < orderedList.length(); i++) 
-        //{
-          //  ch[i] = orderedList.charAt(i);
-        //}
-		
-		for(int x = 0; x < quantifiers.length; x++)
-		{
-			if(!dependentQuantifiers.contains(quantifiers[x].toString()))
+			for(int it = 0; it < independentQuantifiers.size(); it++)
 			{
-				newQuantifiersOuter.add(quantifiers[x]);
-			}
-			else if(dependentQuantifiers.contains(quantifiers[x].toString()) && independentQuantifiers.contains(quantifiers[x].toString()))
-			{
-				newQuantifiersInner.add(quantifiers[x]);
-			}
-			else if(!independentQuantifiers.contains(quantifiers[x].toString()))
-			{
-				newQuantifiersFullyDependent.add(quantifiers[x]);
-			}
-		}
-		//for(int x = 0; x < ch.length; x++)
-		//{
-			//if(newQuantifiersOuter.contains(ch[x])|| newQuantifiersFullyDependent.contains(ch[x]))
-			//{
-				
-			//}
-		//}
+						g.addEdge(exchangeTable.get(independentQuantifiers.get(it)),exchangeTable.get(dependentQuantifiers.get(it)));
 			
-		
-			for(int i= 0; i < quantifiers.length;i++)
-			{
-				for(int a = 0; a < independentQuantifiers.size(); a++)
-				{
-				
-					if(quantifiers[i].toString().equals(independentQuantifiers.get(a)))
-					{
-						newQuantifiersOuter.add(quantifiers[i]);
-					}
-				}
-				for(int b = 0; b < dependentQuantifiers.size(); b++)
-				{
-					if(quantifiers[i].toString().equals(dependentQuantifiers.get(b)))
-					{
-						newQuantifiersInner.add(quantifiers[i]);
-					}
-				}
 			}
-	int tag = predicate.getTag();
-	String result;
-		
-	List<Predicate> newPredicateOuter = new ArrayList<Predicate>();		
-	List<Predicate> newPredicateInner = new ArrayList<Predicate>();
-	ArrayList<RelationalPredicate> chi = new ArrayList<>();
-	
-			if (predicate instanceof AssociativePredicate) {
-				Predicate[] children = ((AssociativePredicate) predicate)
-						.getChildren();
+			
+			
+			orderedList = g.top_sort();
+			fileWr(orderedList.toString(), " ");
+			HashSet groups = new HashSet();
+			groups.add(orderedList);
+			int groupSize = groups.size();
+			long n = orderedList.stream().distinct().count();
+			
+			for (int i = 0; i < n; i++)
+			{
+		        Identifiers.add(new ArrayList<BoundIdentDecl>());
+			}
+		    for(int i = 0; i < orderedList.size(); i++)
+			{
+				Identifiers.get(orderedList.get(i)).add(quantifiers[i]);
+			}
+		    
+		    if (predicate instanceof BinaryPredicate) { // forAll implication
 				
-				for(int m = 0; m < children.length; m++ )
-				{
-					chi.add((RelationalPredicate) children[m]);
-				}
-				
-				for(int i = 0; i < chi.size(); i++ )
-				{
-					if(chi.get(i).getTag() == Formula.IN)
+		    	Predicate leftPredicate = ((BinaryPredicate) predicate).getLeft();
+		    	Predicate rightPredicate = ((BinaryPredicate) predicate).getRight();
+			   
+				if (leftPredicate instanceof AssociativePredicate) {
+					Predicate[] children = ((AssociativePredicate) leftPredicate)
+							.getChildren();
+					for(int m = 0; m < children.length; m++ )
 					{
-						RelationalPredicate relationalPredicate = (RelationalPredicate) chi.get(i);
-						Expression left = relationalPredicate.getLeft();
-						//Expression right = relationalPredicate.getRight();	
-						result = parseExpression(left);
-					
-						for(int j = 0; j < independentQuantifiers.size() ; j++)
+						chi.add((RelationalPredicate) children[m]);
+					}
+					for (int i = 0; i < Identifiers.size(); i++)
+					{
+			            Predicates.add(new ArrayList<Predicate>());
+					}
+					for(int i =0; i < chi.size(); i++)
+					{
+						boolean stop = true;
+						if(chi.get(i).getTag() == Formula.IN)
 						{
-							if (independentQuantifiers.get(j).equals(result)) {
-								
-								
-								newPredicateOuter.add((RelationalPredicate) chi.get(i));
-								chi.remove(i);
-								i --;
-							}
-						}
-						for(int k = 0; k < dependentQuantifiers.size(); k++)
+							RelationalPredicate relationalPredicate = (RelationalPredicate) chi.get(i);
+							Expression left = relationalPredicate.getLeft();
+							Expression right = relationalPredicate.getRight();
+							result = parseExpression(left);
+							
+							for(int j = 0; j < Identifiers.size() && stop; j++)
 							{
-								if(dependentQuantifiers.get(k).equals(result))
+								for(int k = 0; k < Identifiers.get(j).size(); k++)
 								{
-									newPredicateInner.add((RelationalPredicate) chi.get(i)); 
-									chi.remove(i);
-									i --;
-									
+									if(Identifiers.get(j).get(k).toString().equals(result) && j < Identifiers.size())
+									{
+												Predicates.get(j).add(chi.get(i));
+												chi.remove(i);
+												i--;
+												stop = false;
+												break;
+									}
 								}
+								
 							}
+							
 						}
-					}		
+					}
+				  if(chi.size() > 0)
+				    {
+				    	for(int v = 0; v < chi.size();v++ )
+						{
+					    	
+							Predicates.get(Predicates.size()-1).add(chi.get(v));
+						}
+				    }
+				  rightPredicates.add(rightPredicate);
+				  
+					
+				}
+		
 			} 
-	
+			
+		  
+		    
+			
+			for(int i = 0; i<  Predicates.size(); i++)
+			{
+				if(Predicates.get(i).size() > 1)
+				{
+					associativePredicates.add(ff.makeAssociativePredicate(Formula.LAND, Predicates.get(i), null));
+				}
+				else if(Predicates.get(i).size() == 1)
+				{
+					associativePredicates.add(Predicates.get(i).get(0));
+				}	
+						
+			}
+			for(int i = 0; i < associativePredicates.size(); i++)
+			{
+				QuantifiedPredicatesInner.add(ff.makeQuantifiedPredicate(Formula.FORALL, Identifiers.get(i), associativePredicates.get(i), null));
+			}
+			//ff.makeAssociativePredicate(tag, associativePredicates, null)
+			
+			int counter = 0;
+			int m = Identifiers.size() - 1;
+			for(int i = QuantifiedPredicatesInner.size()-1; i >= 0; i--)
+			{
+				
+				
+				if(i == associativePredicates.size()-1)
+					
+				{
+					
+					BinaryPredicates.add(ff.makeBinaryPredicate(Formula.LIMP,QuantifiedPredicatesInner.get(i-1), QuantifiedPredicatesInner.get(i),  null));
+				}
+				else
+				{
+					if(i > 0)
+					{
+						BinaryPredicates.add(ff.makeBinaryPredicate(
+									Formula.LIMP,QuantifiedPredicatesInner.get(i-1), BinaryPredicates.get(counter),  null));
+							counter++;
+					}
+				}
+				m--;
+				int a =0;
+				
+				
+			}
+			BinaryPredicate finalBinaryFormula = ff.makeBinaryPredicate(Formula.LIMP, BinaryPredicates.get(BinaryPredicates.size()-1), rightPredicates.get(0), null);
+			int originalSize = boundIdentDeclList.size();
+			while (boundIdentDeclList.size() > originalSize) 
+			{
+				boundIdentDeclList.remove(boundIdentDeclList.size() - 1);
+			}
+			fileWr(finalBinaryFormula.toString(), " ");
+			String returnedFinalBinaryFormula = parsePredicate(finalBinaryFormula);
+			return returnedFinalBinaryFormula;
 
-	//return result.toString();
 }
 	public void dependecyGraph(String predicate, List<String> independetQ, List<String> dependentQ) throws UnsupportedEncodingException
 	{
@@ -1269,10 +1300,8 @@ private void transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredicat
 	private Object parseDomain(String name, Predicate predicate) {
 
 		StringBuilder result = new StringBuilder();
-		//List<String> domainArrayS = new ArrayList<String>();
 		boolean patternMatched = false;
-		//String names = name;
-		//fileWr(names.toString());
+		
 		if (predicate instanceof BinaryPredicate) { // forAll implication
 			Predicate leftPredicate = ((BinaryPredicate) predicate).getLeft();
 			if (leftPredicate.getTag() == Formula.IN) {
@@ -1282,13 +1311,6 @@ private void transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredicat
 				if (name.equals(parseExpression(left))) {
 				
 					result.append(parseExpression(right));
-				//	if(domainArrayS.contains(names +",") || domainArrayS.contains("(" + names))
-					//{
-						//domainArrayS.add(result.toString() + "Binary");
-						//fileWr(domainArrayS.toString());
-					//}
-				//	fileWr(result.toString());
-					
 					patternMatched = true;
 				}
 			} else if (leftPredicate instanceof AssociativePredicate) {
@@ -1301,15 +1323,7 @@ private void transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredicat
 						Expression left = relationalPredicate.getLeft();
 						Expression right = relationalPredicate.getRight();
 						if (name.equals(parseExpression(left))) {
-							result.append(parseExpression(right));
-						//	fileWr(result.toString());
-						//	domainArrayS.add(result.toString());
-							//if(domainArrayS.contains(names +",") || domainArrayS.contains("(" + names))
-							//{
-								//fileWr(names.toString());
-								//fileWr(domainArrayS.toString() + "Binary associative");
-							//}
-							
+							result.append(parseExpression(right));							
 							patternMatched = true;
 							break;
 						}
@@ -1337,15 +1351,6 @@ private void transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredicat
 					results = parseExpression(left);
 					if (name.equals(parseExpression(left))) {
 						result.append(parseExpression(right));
-						//fileWr(result.toString());
-						//domainArrayS.add(result.toString());
-						
-						//if(domainArrayS.contains(names +",") || domainArrayS.contains("(" + names))
-					//	{
-							
-					//		fileWr(domainArrayS.toString() + "associative");
-					//	}
-					
 						patternMatched = true;
 						break;
 					}
