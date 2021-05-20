@@ -10,6 +10,11 @@
 
 package bsimu.jeb;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eventb.core.IEventBProject;
 import org.eventb.core.IInvariant;

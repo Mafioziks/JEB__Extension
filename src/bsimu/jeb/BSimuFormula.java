@@ -336,7 +336,20 @@ public class BSimuFormula {
 		StringBuilder result = new StringBuilder();
 		Predicate predicate = quantifiedPredicate.getPredicate();
 		BoundIdentDecl[] quantifiers = quantifiedPredicate.getBoundIdentDecls();
-
+		String r = "r1"; 
+		//String fool="fool";
+		int num = 1;
+		String res = "0";
+		for(int i = 0; i < quantifiers.length; i++)
+		{
+			num = quantifiers[i].toString().compareTo(r);
+			if(num == 0)
+			{
+				boolean a = false;
+				fileWr(quantifiers[i].toString(), " ");
+			}
+			
+		}
 		StringBuilder quantifiersString = new StringBuilder();
 		StringBuilder domainArray = new StringBuilder();
 		List<String> domainArray2 = new ArrayList<String>();
@@ -374,6 +387,7 @@ public class BSimuFormula {
 					}
 			}
 		}
+		domainArray.append("]");
 		if(dependentQuantifiers.size()>0)
 		{
 			
@@ -462,6 +476,7 @@ public class BSimuFormula {
 			boundIdentDeclList.toArray(boundIdentDecls);
 			String identifier = boundIdentifier.getDeclaration(boundIdentDecls)
 					.getName();
+		
 			return Util.escapePrimedVariable(identifier);
 
 		} else if (expression instanceof IntegerLiteral) {
@@ -829,6 +844,9 @@ public class BSimuFormula {
 		ArrayList<RelationalPredicate> chi = new ArrayList<>();
 		FormulaFactory ff = predicate.getFactory();
 		Form iForm = quantifiedExpression.getForm();
+		int IdentifierCurrentIndex;
+		int identifierNewIndex;
+		
 		Graph g =  new Graph(quantifiers.length);
 		for(int z = 0; z < quantifiers.length; z++)
 		{
@@ -892,11 +910,43 @@ public class BSimuFormula {
 						{
 							if(Identifiers.get(j).get(k).toString().equals(result) && j < Identifiers.size())
 							{
-										Predicates.get(j).add(chi.get(i));
-										chi.remove(i);
-										i--;
-										stop = false;
-										break;
+										//Predicates.get(j).add(chi.get(k));
+										BoundIdentifier temp[] = chi.get(i).getLeft().getBoundIdentifiers();
+										IdentifierCurrentIndex = temp[0].getBoundIndex();
+										identifierNewIndex = ((Identifiers.get(j).size() -1) - k);
+										if(j == 0)
+										{
+											if(identifierNewIndex == IdentifierCurrentIndex)
+												{
+													Predicates.get(j).add(chi.get(i));
+												}
+											else 
+												{
+													if(identifierNewIndex - IdentifierCurrentIndex < 0)
+													{
+														String a="";
+													}
+													Predicates.get(j).add(chi.get(i).shiftBoundIdentifiers(identifierNewIndex - IdentifierCurrentIndex));
+													if(identifierNewIndex - IdentifierCurrentIndex < 0)
+													{
+														String a="";
+													}
+												}
+											chi.remove(i);
+											i--;
+											stop = false;
+											break;
+										}
+										else
+										{
+											Predicates.get(j).add(chi.get(i));
+											chi.remove(i);
+											i--;
+											stop = false;
+											break;
+										}
+
+										
 							}
 						}
 						
@@ -976,6 +1026,8 @@ private String transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredic
 			ArrayList<QuantifiedPredicate> QuantifiedPredicatesInner = new ArrayList<QuantifiedPredicate>(); 
 			FormulaFactory ff = predicate.getFactory();
 			ArrayList<Predicate> rightPredicates = new ArrayList<Predicate>();
+			int IdentifierCurrentIndex;
+			int identifierNewIndex;
 			//Form iForm = quantifiedPredicate.getForm();
 			Graph g =  new Graph(quantifiers.length);
 			for(int z = 0; z < quantifiers.length; z++)
@@ -1038,11 +1090,41 @@ private String transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredic
 								{
 									if(Identifiers.get(j).get(k).toString().equals(result) && j < Identifiers.size())
 									{
-												Predicates.get(j).add(chi.get(i));
-												chi.remove(i);
-												i--;
-												stop = false;
-												break;
+										BoundIdentifier temp[] = chi.get(i).getLeft().getBoundIdentifiers();
+										IdentifierCurrentIndex = temp[0].getBoundIndex();
+										identifierNewIndex = ((Identifiers.get(j).size() -1) - k);
+										if(j == 0)
+										{
+											if(identifierNewIndex == IdentifierCurrentIndex)
+												{
+													Predicates.get(j).add(chi.get(i));
+												}
+											else 
+												{
+													if(identifierNewIndex - IdentifierCurrentIndex < 0)
+													{
+														String a="";
+													}
+													Predicates.get(j).add(chi.get(i).shiftBoundIdentifiers(identifierNewIndex - IdentifierCurrentIndex));
+													if(identifierNewIndex - IdentifierCurrentIndex < 0)
+													{
+														String a="";
+													}
+												}
+											chi.remove(i);
+											i--;
+											stop = false;
+											break;
+										}
+										else
+										{
+											Predicates.get(j).add(chi.get(i));
+											chi.remove(i);
+											i--;
+											stop = false;
+											break;
+										}
+										
 									}
 								}
 								
@@ -1313,6 +1395,11 @@ private String transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredic
 					result.append(parseExpression(right));
 					patternMatched = true;
 				}
+				else if(left.getTag() == Formula.MAPSTO)
+				{
+					result.append(parseExpression(right));
+					patternMatched = true;
+				}
 			} else if (leftPredicate instanceof AssociativePredicate) {
 				Predicate[] children = ((AssociativePredicate) leftPredicate)
 						.getChildren();
@@ -1322,13 +1409,15 @@ private String transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredic
 						RelationalPredicate relationalPredicate = (RelationalPredicate) children[i];
 						Expression left = relationalPredicate.getLeft();
 						Expression right = relationalPredicate.getRight();
+						//int left_tag = left.getTag();
 						if (name.equals(parseExpression(left))) {
 							result.append(parseExpression(right));							
 							patternMatched = true;
 							break;
 						}
-					}
-				}
+				
+					}  
+				}	
 
 			}
 
