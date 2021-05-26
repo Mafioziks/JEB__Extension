@@ -44,6 +44,7 @@ import org.eventb.core.ast.Expression;
 import org.eventb.core.ast.Formula;
 import org.eventb.core.ast.FormulaFactory;
 import org.eventb.core.ast.FreeIdentifier;
+import org.eventb.core.ast.IParseResult;
 import org.eventb.core.ast.IntegerLiteral;
 import org.eventb.core.ast.LiteralPredicate;
 import org.eventb.core.ast.MultiplePredicate;
@@ -336,7 +337,8 @@ public class BSimuFormula {
 		StringBuilder result = new StringBuilder();
 		Predicate predicate = quantifiedPredicate.getPredicate();
 		BoundIdentDecl[] quantifiers = quantifiedPredicate.getBoundIdentDecls();
-		String r = "r1"; 
+		String r = "r1";
+		testPairs(quantifiedPredicate);
 		//String fool="fool";
 		int num = 1;
 		String res = "0";
@@ -346,7 +348,7 @@ public class BSimuFormula {
 			if(num == 0)
 			{
 				boolean a = false;
-				fileWr(quantifiers[i].toString(), " ");
+				//fileWr(quantifiers[i].toString(), " ");
 			}
 			
 		}
@@ -392,7 +394,7 @@ public class BSimuFormula {
 		{
 			
 				transformedPredicate = transformQuantifiedPredicate(quantifiedPredicate,dependentQuantifiers, independentQuantifiers);
-				fileWr(transformedPredicate, "");
+			//	fileWr(transformedPredicate, "");
 				while (boundIdentDeclList.size() > originalSize) {
 					boundIdentDeclList.remove(boundIdentDeclList.size() - 1);
 				}
@@ -780,7 +782,7 @@ public class BSimuFormula {
 		if(dependentQuantifiers.size()>0)
 		{
 				fina = transformQuantifiedExpression(quantifiedExpression, dependentQuantifiers,independentQuantifiers);
-				fileWr(fina, "");
+				//fileWr(fina, "");
 				while (boundIdentDeclList.size() > originalSize) {
 					boundIdentDeclList.remove(boundIdentDeclList.size() - 1);
 				}
@@ -861,7 +863,7 @@ public class BSimuFormula {
 		
 		
 		orderedList = g.top_sort();
-		fileWr(orderedList.toString(), " ");
+		//fileWr(orderedList.toString(), " ");
 		HashSet groups = new HashSet();
 		groups.add(orderedList);
 		int groupSize = groups.size();
@@ -1003,7 +1005,7 @@ public class BSimuFormula {
 		{
 			boundIdentDeclList.remove(boundIdentDeclList.size() - 1);
 		}
-		fileWr(quantifiedExpressions.get(quantifiedExpressions.size()-1).toString(), " ");
+		//fileWr(quantifiedExpressions.get(quantifiedExpressions.size()-1).toString(), " ");
 		String returnedFinalFormula = parseExpression(finalUnaryFormula);
 		return returnedFinalFormula;
 }
@@ -1043,7 +1045,7 @@ private String transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredic
 			
 			
 			orderedList = g.top_sort();
-			fileWr(orderedList.toString(), " ");
+			//fileWr(orderedList.toString(), " ");
 			HashSet groups = new HashSet();
 			groups.add(orderedList);
 			int groupSize = groups.size();
@@ -1200,12 +1202,79 @@ private String transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredic
 			{
 				boundIdentDeclList.remove(boundIdentDeclList.size() - 1);
 			}
-			fileWr(finalBinaryFormula.toString(), " ");
+			//fileWr(finalBinaryFormula.toString(), " ");
 			String returnedFinalBinaryFormula = parsePredicate(finalBinaryFormula);
 			return returnedFinalBinaryFormula;
 
 }
-	public void dependecyGraph(String predicate, List<String> independetQ, List<String> dependentQ) throws UnsupportedEncodingException
+public ArrayList<Expression> testPairs(QuantifiedPredicate quntfiedPredicate)
+{
+			Predicate predicate = quntfiedPredicate.getPredicate();
+			//BoundIdentDecl[] quantifiers = quntfiedPredicate.getBoundIdentDecls();
+			//ArrayList<ArrayList<Expression>> result = new ArrayList<ArrayList<Expression>>();
+			ArrayList<Expression> result = new ArrayList<Expression>();
+
+			
+			if (predicate instanceof BinaryPredicate) { // forAll implication
+				Predicate leftPredicate = ((BinaryPredicate) predicate).getLeft();
+				if (leftPredicate.getTag() == Formula.IN) {
+					RelationalPredicate relationalPredicate = (RelationalPredicate) leftPredicate;
+					Expression left = relationalPredicate.getLeft();
+					Expression right = relationalPredicate.getRight();
+					
+					if(left.getTag() == Formula.MAPSTO)
+					{
+							BinaryExpression binaryPredicate = (BinaryExpression) left;
+							Expression BiLeft = binaryPredicate.getLeft();
+							Expression BiRight = binaryPredicate.getRight();
+							result.add(BiLeft);
+							result.add(BiRight);
+							
+							String newIdentifier = "a";
+							String fromula = "a";
+							FormulaFactory ff = quntfiedPredicate.getFactory();
+							BoundIdentDecl bd = ff.makeBoundIdentDecl(fromula, null);
+							IParseResult hm = ff.parseExpression(fromula, right);
+							//newIdentifier = hm.getParsedExpression().toString();
+							RelationalPredicate exp = ff.makeRelationalPredicate(Formula.IN, hm.getParsedExpression(), right, null);
+							//QuantifiedExpression qExp = ff.make
+							//String exp = ff.parseExpression(fromula, right).toString()	;
+							fileWr(exp.toString(), " ");
+							//ff.
+					}
+				} else if (leftPredicate instanceof AssociativePredicate) {
+					Predicate[] children = ((AssociativePredicate) leftPredicate)
+							.getChildren();
+
+					for (int i = 0; i < children.length; i++) {
+						if (children[i].getTag() == Formula.IN) {
+							RelationalPredicate relationalPredicate = (RelationalPredicate) children[i];
+							Expression left = relationalPredicate.getLeft();
+							//Expression right = relationalPredicate.getRight();
+							if(left.getTag() == Formula.MAPSTO)
+							{
+								BinaryExpression binaryPredicate = (BinaryExpression) left;
+								Expression BiLeft = binaryPredicate.getLeft();
+								Expression BiRight = binaryPredicate.getRight();
+								result.add(BiLeft);
+								result.add(BiRight);
+								
+							}
+					
+						}  
+					}	
+
+				}
+
+			}
+			return result;
+}
+public void transformPairs(QuantifiedPredicate quantifiedPredicate, ArrayList<Expression> pairIdentifiers)
+{
+	
+}
+
+public void dependecyGraph(String predicate, List<String> independetQ, List<String> dependentQ) throws UnsupportedEncodingException
 	{
 		
 		try {
