@@ -1207,13 +1207,13 @@ private String transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredic
 			return returnedFinalBinaryFormula;
 
 }
-public ArrayList<Expression> testPairs(QuantifiedPredicate quntfiedPredicate)
+public ArrayList<Expression> testPairs(QuantifiedPredicate quantifiedPredicate)
 {
-			Predicate predicate = quntfiedPredicate.getPredicate();
+			Predicate predicate = quantifiedPredicate.getPredicate();
 			//BoundIdentDecl[] quantifiers = quntfiedPredicate.getBoundIdentDecls();
 			//ArrayList<ArrayList<Expression>> result = new ArrayList<ArrayList<Expression>>();
 			ArrayList<Expression> result = new ArrayList<Expression>();
-
+			int tag = quantifiedPredicate.getTag(); 
 			
 			if (predicate instanceof BinaryPredicate) { // forAll implication
 				Predicate leftPredicate = ((BinaryPredicate) predicate).getLeft();
@@ -1224,23 +1224,77 @@ public ArrayList<Expression> testPairs(QuantifiedPredicate quntfiedPredicate)
 					
 					if(left.getTag() == Formula.MAPSTO)
 					{
-							BinaryExpression binaryPredicate = (BinaryExpression) left;
+						
+						
+						    BinaryExpression binaryPredicate = (BinaryExpression) left;
 							Expression BiLeft = binaryPredicate.getLeft();
 							Expression BiRight = binaryPredicate.getRight();
 							result.add(BiLeft);
 							result.add(BiRight);
+							FormulaFactory ff = quantifiedPredicate.getFactory();
 							
 							String newIdentifier = "a";
-							String fromula = "a";
-							FormulaFactory ff = quntfiedPredicate.getFactory();
-							BoundIdentDecl bd = ff.makeBoundIdentDecl(fromula, null);
-							IParseResult hm = ff.parseExpression(fromula, right);
+							IParseResult aa = ff.parseExpression(newIdentifier, null);
+							ArrayList<BoundIdentDecl> bc = new ArrayList<>();
+							
+							ArrayList<BoundIdentifier> bi = new ArrayList<>();
+							BoundIdentifier bb = ff.makeBoundIdentifier(0, null);
+							BoundIdentDecl bid = ff.makeBoundIdentDecl("a", bb.getSourceLocation());
+							Expression exp = (Expression) bb;
+							bc.add(bid);
+							RelationalPredicate prp = ff.makeRelationalPredicate(Formula.IN, exp, right, null);
+							QuantifiedPredicate qp = ff.makeQuantifiedPredicate(tag, bc, prp, null);
+							fileWr(prp.toString(), " ");
+							String c ="";
+							
+							
+							
+						/*
+							String newIdentifier = "∀i,j · i ∈ serie1 ∧ j∈ serie1 ⇒ (i∗i = j)";
+							
+							IParseResult ipp = ff.parsePredicate(newIdentifier, null);
+							Predicate pp = ipp.getParsedPredicate();
+							
+							String returnedFinalBinaryFormula  = parsePredicate(pp);
+							
+							fileWr(returnedFinalBinaryFormula, " ");
+							
+							
+						*/	
+							
+							//String newIdentifier = "a";
+							//String one = "a";
+							/*
+							String two = "b";
+							String elem ="∈";
+							String ser = "series";
+							FormulaFactory ff = quantifiedPredicate.getFactory();
+							ArrayList<BoundIdentifier> bd = new ArrayList<>();
+							ArrayList<BoundIdentDecl> bb = new ArrayList<>();
+							bd.add(ff.makeBoundIdentifier(0, null));
+							bb.add(ff.makeBoundIdentDecl("a", null));
+							//ff.makeBoundIdentifier(0, bd.get(0));
+							//ff.makeBo
+						
+							//IParseResult hm = ff.parseExpression(fromula, right);
+							IParseResult hm = ff.parseExpression(one, null);
+							IParseResult hn = ff.parseExpression(elem, right);
+							IParseResult ho = ff.parseExpression(ser, right);
+							
+							bd.add(ff.makeBoundIdentifier(0, hm.getParsedExpression().getSourceLocation()));
+							
+							RelationalPredicate rpp = ff.makeRelationalPredicate(Formula.IN, hm.getParsedExpression(), ho.getParsedExpression(), null);
 							//newIdentifier = hm.getParsedExpression().toString();
-							RelationalPredicate exp = ff.makeRelationalPredicate(Formula.IN, hm.getParsedExpression(), right, null);
+							//RelationalPredicate exp = ff.makeRelationalPredicate(Formula.IN, hm.getParsedExpression(), right, null);
+							//RelationalPredicate exp = (RelationalPredicate) hm.getParsedPredicate();
+							QuantifiedPredicate qpr = ff.makeQuantifiedPredicate(tag, bd, rpp, null);
+							//ff.makequ
 							//QuantifiedExpression qExp = ff.make
 							//String exp = ff.parseExpression(fromula, right).toString()	;
-							fileWr(exp.toString(), " ");
+							fileWr(qpr.toString(), " ");
 							//ff.
+							 * 
+							 */
 					}
 				} else if (leftPredicate instanceof AssociativePredicate) {
 					Predicate[] children = ((AssociativePredicate) leftPredicate)
