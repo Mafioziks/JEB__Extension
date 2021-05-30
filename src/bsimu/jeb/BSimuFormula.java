@@ -1213,10 +1213,12 @@ public ArrayList<Expression> testPairs(QuantifiedPredicate quantifiedPredicate)
 			//BoundIdentDecl[] quantifiers = quntfiedPredicate.getBoundIdentDecls();
 			//ArrayList<ArrayList<Expression>> result = new ArrayList<ArrayList<Expression>>();
 			ArrayList<Expression> result = new ArrayList<Expression>();
+			ArrayList<String> projection = new ArrayList<String>();
 			int tag = quantifiedPredicate.getTag(); 
 			
 			if (predicate instanceof BinaryPredicate) { // forAll implication
 				Predicate leftPredicate = ((BinaryPredicate) predicate).getLeft();
+				Predicate rightPredicate = ((BinaryPredicate) predicate).getRight();
 				if (leftPredicate.getTag() == Formula.IN) {
 					RelationalPredicate relationalPredicate = (RelationalPredicate) leftPredicate;
 					Expression left = relationalPredicate.getLeft();
@@ -1232,7 +1234,7 @@ public ArrayList<Expression> testPairs(QuantifiedPredicate quantifiedPredicate)
 							result.add(BiLeft);
 							result.add(BiRight);
 							FormulaFactory ff = quantifiedPredicate.getFactory();
-							
+							BoundIdentDecl[] quantifiers = quantifiedPredicate.getBoundIdentDecls();
 							String newIdentifier = "a";
 							IParseResult aa = ff.parseExpression(newIdentifier, null);
 							ArrayList<BoundIdentDecl> bc = new ArrayList<>();
@@ -1241,14 +1243,52 @@ public ArrayList<Expression> testPairs(QuantifiedPredicate quantifiedPredicate)
 							BoundIdentifier bb = ff.makeBoundIdentifier(0, null);
 							BoundIdentDecl bid = ff.makeBoundIdentDecl("a", bb.getSourceLocation());
 							Expression exp = (Expression) bb;
-							bc.add(bid);
+							
+						
+							
 							RelationalPredicate prp = ff.makeRelationalPredicate(Formula.IN, exp, right, null);
-							QuantifiedPredicate qp = ff.makeQuantifiedPredicate(tag, bc, prp, null);
-							fileWr(prp.toString(), " ");
+							
+							//fileWr(prp.toString(), " ");
+							
+							String prj1 = "prj1("+newIdentifier+")";
+							String prj2 = "prj2("+newIdentifier+")";
+							
+							IParseResult n1 = ff.parseExpression(prj1, null);
+							IParseResult n2 = ff.parseExpression(prj2, null);
+							Expression exp2[] = quantifiedPredicate.getBoundIdentifiers();
+							String theIvalue = quantifiers[0].toString();
+							String theJvalue = quantifiers[1].toString();
+							IParseResult n3 = ff.parseExpression(theIvalue, null);
+							IParseResult n4 = ff.parseExpression(theJvalue, null);
+							RelationalPredicate new1 = ff.makeRelationalPredicate(Formula.EQUAL, n3.getParsedExpression(), n1.getParsedExpression(), null);
+							RelationalPredicate new2 = ff.makeRelationalPredicate(Formula.EQUAL, n4.getParsedExpression(), n2.getParsedExpression(), null);
+							
+							for(int i =0 ; i< quantifiers.length; i++)
+							{
+								bc.add(quantifiers[i]);
+							}
+							bc.add(bid);
+							ArrayList<Predicate> rpp = new ArrayList<>();
+							rpp.add(prp);
+							rpp.add(new1);
+							rpp.add(new2);
+							AssociativePredicate asp = ff.makeAssociativePredicate(Formula.LAND, rpp, null);
+							QuantifiedPredicate qp = ff.makeQuantifiedPredicate(tag, bc, asp, null);
+							
+							
+							
+							
+							
+							
+							
+							/*projection.add(prj1);
+							projection.add(prj2);
+							parseRightPair(rightPredicate, result, projection);
+							
 							String c ="";
-							
-							
-							
+							String s = quantifiedPredicate.toStringWithTypes();
+							*/
+							fileWr(qp.toString(), " ");
 						/*
 							String newIdentifier = "∀i,j · i ∈ serie1 ∧ j∈ serie1 ⇒ (i∗i = j)";
 							
@@ -1323,9 +1363,88 @@ public ArrayList<Expression> testPairs(QuantifiedPredicate quantifiedPredicate)
 			}
 			return result;
 }
-public void transformPairs(QuantifiedPredicate quantifiedPredicate, ArrayList<Expression> pairIdentifiers)
+public void parseRightPair(Predicate rightPredicate, ArrayList result, ArrayList projection)
 {
+	Predicate predicate = rightPredicate;
+	FormulaFactory rp = rightPredicate.getFactory();
+	//String formula = predicate.toString();
+	ArrayList<Expression> rs = result;
+	ArrayList<String> pr = projection;
+	FormulaFactory ff = predicate.getFactory();
+	//String projection = prjName;
+	if(predicate instanceof RelationalPredicate)	
+	{
+		int tag = predicate.getTag();
+		//predicate.
+		Expression left = ((RelationalPredicate) predicate).getLeft();
+		Expression right = ((RelationalPredicate) predicate).getRight();
+		
+		for(int i = 0; i < result.size(); i++)
+		{
+			String abc = parseExpression(rs.get(i));
+			String bcd = parseExpression(rs.get(i+1));
+			String parse1 = parseExpression(left);
+			String parse2 = parseExpression(right);
+			if(abc.equals(parseExpression(left)) && bcd.equals(parseExpression(right)))
+			{
+				
+				//String intermediateFormula = projection.get(i) + " "+ tag + 
+				IParseResult formula1 = ff.parseExpression(abc, null);
+				IParseResult formula2 = ff.parseExpression(bcd, null);
+				Predicate finalf = ff.makeRelationalPredicate(tag, formula1.getParsedExpression(), formula2.getParsedExpression(), null);
+				fileWr(finalf.toString(), " ");
+				break;
+			}
+		}
+	}
+	//if(formula.contains(name))
+		
+	//{
+		//formula.replace(name, prjName);
+	//}	
+	//IParseResult finalFormula = rp.parsePredicate(formula, null);
+	//Predicate finalPredicate = finalFormula.getParsedPredicate();
 	
+	/*
+	if (rightPredicate instanceof AssociativePredicate) {
+		Predicate[] children = ((AssociativePredicate) predicate)
+				.getChildren();
+		
+
+		for (int i = 0; i < children.length; i++) {
+			if (children[i] instanceof RelationalPredicate) {
+				RelationalPredicate relationalPredicate = (RelationalPredicate) children[i];
+				Expression left = relationalPredicate.getLeft();
+				Expression right = relationalPredicate.getRight();
+				//thiss = left.getFactory().toString();
+				if (name.equals(parseExpression(left))) {
+					result.append(parseExpression(right));
+					patternMatched = true;
+					break;
+				}
+			}
+		}
+
+	} else if (predicate instanceof RelationalPredicate) {
+		RelationalPredicate relationalPredicate = (RelationalPredicate) predicate;
+		if (relationalPredicate.getTag() == Formula.IN) {
+			Expression left = relationalPredicate.getLeft();
+			Expression right = relationalPredicate.getRight();
+			if (name.equals(parseExpression(left))) {
+				result.append(parseExpression(right));
+				//domainArrayS.add(result.toString());
+				//if(domainArrayS.contains(names +",") || domainArrayS.contains("(" + names))
+				//{
+					//fileWr(names.toString());
+				//	fileWr(domainArrayS.toString() + "relational");
+				//}
+				//fileWr(result.toString());
+			
+				patternMatched = true;
+			}
+		}
+	}
+	*/
 }
 
 public void dependecyGraph(String predicate, List<String> independetQ, List<String> dependentQ) throws UnsupportedEncodingException
