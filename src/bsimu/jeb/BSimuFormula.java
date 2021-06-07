@@ -766,7 +766,7 @@ public class BSimuFormula {
 				for(int k = 0; k < quantifiers.length; k++)					
 					if(quantifiers[k].getName() != name)
 					{
-						if(domainArray2.get(domSize).contains(quantifiers[k].getName() + ")")||domainArray2.get(domSize).contains("("+ quantifiers[k].getName() + ", "))
+						if(domainArray2.get(domSize).contains(quantifiers[k].getName() + ")")||domainArray2.get(domSize).contains("("+ quantifiers[k].getName() + ",")||domainArray2.get(domSize).contains("("+ quantifiers[k].getName() + " ,"))
 						{
 							depend = name + " -> " + quantifiers[k].getName() ;
 							depend2 = domainArray2.get(domSize);
