@@ -356,7 +356,7 @@ public class BSimuFormula {
 				String depend = "";
 				String depend2 = "";
 				List<String> dependentQuantifiers = new ArrayList<String>();
-			    List<String> independentQuantifiers = new ArrayList<String>();
+					List<String> independentQuantifiers = new ArrayList<String>();
 			    List<String> dependencyOrder = new ArrayList<String>();
 				domainArray.append("[");
 		
@@ -1026,6 +1026,7 @@ private String transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredic
 			ArrayList<BinaryPredicate> BinaryPredicates = new ArrayList<BinaryPredicate>();
 			ArrayList<RelationalPredicate> chi = new ArrayList<>();
 			ArrayList<QuantifiedPredicate> QuantifiedPredicatesInner = new ArrayList<QuantifiedPredicate>(); 
+			ArrayList<BinaryPredicate> BinaryPredicateInner = new ArrayList<BinaryPredicate>();
 			FormulaFactory ff = predicate.getFactory();
 			ArrayList<Predicate> rightPredicates = new ArrayList<Predicate>();
 			int IdentifierCurrentIndex;
@@ -1105,13 +1106,14 @@ private String transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredic
 												{
 													if(identifierNewIndex - IdentifierCurrentIndex < 0)
 													{
-														String a="";
+														
+														Predicates.get(j).add(chi.get(i).shiftBoundIdentifiers(identifierNewIndex - IdentifierCurrentIndex));
 													}
-													Predicates.get(j).add(chi.get(i).shiftBoundIdentifiers(identifierNewIndex - IdentifierCurrentIndex));
-													if(identifierNewIndex - IdentifierCurrentIndex < 0)
+													
+													/*if(identifierNewIndex - IdentifierCurrentIndex < 0)
 													{
 														String a="";
-													}
+													}*/
 												}
 											chi.remove(i);
 											i--;
@@ -1148,11 +1150,10 @@ private String transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredic
 				}
 		
 			} 
-			
-		  
+			 
 		    
 			
-			for(int i = 0; i<  Predicates.size(); i++)
+			for(int i = 0; i <  Predicates.size(); i++)
 			{
 				if(Predicates.get(i).size() > 1)
 				{
@@ -1164,13 +1165,30 @@ private String transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredic
 				}	
 						
 			}
+			int associativePredicatesSize = associativePredicates.size() - 1;
+			int counter = 0;
+			for(int c = associativePredicatesSize; c >= 0; c--)
+			{
+				if( c == associativePredicates.size()-1)
+				{
+					BinaryPredicateInner.add(ff.makeBinaryPredicate(Formula.LIMP, associativePredicates.get(c), rightPredicates.get(0), null));
+					QuantifiedPredicatesInner.add(ff.makeQuantifiedPredicate(Formula.FORALL, Identifiers.get(c), BinaryPredicateInner.get(0), null));
+				}
+				else
+				{
+					BinaryPredicateInner.add(ff.makeBinaryPredicate(Formula.LIMP, associativePredicates.get(c), QuantifiedPredicatesInner.get(counter), null));
+					QuantifiedPredicatesInner.add(ff.makeQuantifiedPredicate(Formula.FORALL, Identifiers.get(c), BinaryPredicateInner.get(counter + 1), null));
+					counter++;
+				}
+			}
+			/*
 			for(int i = 0; i < associativePredicates.size(); i++)
 			{
 				QuantifiedPredicatesInner.add(ff.makeQuantifiedPredicate(Formula.FORALL, Identifiers.get(i), associativePredicates.get(i), null));
 			}
 			//ff.makeAssociativePredicate(tag, associativePredicates, null)
 			
-			int counter = 0;
+			//int counter = 0;
 			int m = Identifiers.size() - 1;
 			for(int i = QuantifiedPredicatesInner.size()-1; i >= 0; i--)
 			{
@@ -1180,30 +1198,34 @@ private String transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredic
 					
 				{
 					
-					BinaryPredicates.add(ff.makeBinaryPredicate(Formula.LIMP,QuantifiedPredicatesInner.get(i-1), QuantifiedPredicatesInner.get(i),  null));
+					BinaryPredicates.add(ff.makeBinaryPredicate(Formula.LIMP, QuantifiedPredicatesInner.get(i), rightPredicates.get(0),  null));
+					BinaryPredicate bb = ff.makeBinaryPredicate(Formula.LIMP, QuantifiedPredicatesInner.get(i), rightPredicates.get(0), associativePredicates.get(0).getSourceLocation());
+					String b = "";
 				}
 				else
 				{
-					if(i > 0)
+					if(i >= 0)
 					{
 						BinaryPredicates.add(ff.makeBinaryPredicate(
-									Formula.LIMP,QuantifiedPredicatesInner.get(i-1), BinaryPredicates.get(counter),  null));
+									Formula.LIMP,QuantifiedPredicatesInner.get(i), BinaryPredicates.get(counter),  null));
 							counter++;
 					}
 				}
-				m--;
+				//m--;
 				int a =0;
 				
 				
 			}
-			BinaryPredicate finalBinaryFormula = ff.makeBinaryPredicate(Formula.LIMP, BinaryPredicates.get(BinaryPredicates.size()-1), rightPredicates.get(0), null);
+			//BinaryPredicate finalBinaryFormula = ff.makeBinaryPredicate(Formula.LIMP, BinaryPredicates.get(BinaryPredicates.size()-1), rightPredicates.get(0), null);
+			*/
 			int originalSize = boundIdentDeclList.size();
 			while (boundIdentDeclList.size() > originalSize) 
 			{
 				boundIdentDeclList.remove(boundIdentDeclList.size() - 1);
 			}
 			//fileWr(finalBinaryFormula.toString(), " ");
-			String returnedFinalBinaryFormula = parsePredicate(finalBinaryFormula);
+			String returnedFinalBinaryFormula = parsePredicate(QuantifiedPredicatesInner.get(QuantifiedPredicatesInner.size()-1));
+			String a = "a";
 			return returnedFinalBinaryFormula;
 
 }
@@ -1276,7 +1298,7 @@ public String testPairs(QuantifiedPredicate quantifiedPredicate)
 							fileWr(transformedPredicate.toString(), " ");
 							
 							fileWr(transformedQunatifiedPredicate.toString(), " ");
-					}
+					} 
 				} 
 			}
 		return finalResult;
@@ -1634,7 +1656,7 @@ public void dependecyGraph(String predicate, List<String> independetQ, List<Stri
 						break;
 					}
 				}
-			}
+			}	
 
 		} else if (predicate instanceof RelationalPredicate) {
 			RelationalPredicate relationalPredicate = (RelationalPredicate) predicate;
