@@ -1259,41 +1259,61 @@ public String testPairs(QuantifiedPredicate quantifiedPredicate)
 		return finalResult;
 }
 
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ 		The transformPairs function is used to fix the iteration over pairs problem 																					   
+		This function takes the quantifiedPredicate which the iteration over pairs issue occurs,
+		The expressions in the quantified Predicate, for example if the formula is ∀x, y · x ↦y ∈ A ⇒ (……)  x and y in x ↦y ∈ A are passed as an expression in an array
+		The Right predicate is the right side of the belongs statement, e.g., x ↦y ∈ A in this case A is the rightPredicate
+		The chi array includes everything that's not part of the domain array definition and before the implication
+		This function takes the above arguments and produces a new specification where the iteration over pairs problem is fixed.
+		e.g.,  input ∀x, y · x ↦y ∈ A ⇒ (……) 
+			   return ∀x, y, z · z ∈ A ∧ x = prj1(z) ∧ y = prj2(z) ⇒ (……)
+		
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 public String transformPairs(QuantifiedPredicate quantifiedPredicate, ArrayList<Expression> expressions, ArrayList<RelationalPredicate> chi, Predicate RightPredicate )
 {
+			//an array of associtive predicate list created to hold associatve predicates aka anything that's joined using the and operator
 	 		ArrayList<Predicate> associativePredicateList = new ArrayList<>();
 			ArrayList<BoundIdentDecl> listBoundIdentDecl = new ArrayList<>();
+			//Adding all quantifiers in the quantified predicate into an array
 			BoundIdentDecl[] quantifiers = quantifiedPredicate.getBoundIdentDecls();
+			//Adding all the free identifiers into an array
 			FreeIdentifier freeId[] = quantifiedPredicate.getFreeIdentifiers();
 			int tag = quantifiedPredicate.getTag();
 			String newIdentifier = "";
 			String finalResult = "";
+			
+			//sending arguments to the new identifier builder function to create new identifier based on the quantifiers and the free identifiers
 					
 			newIdentifier = newIdentifierBuilder(quantifiers, freeId);
-				
+			
+			//coping an instance of the FromulaFactory onto a formula factory variable
 			FormulaFactory ff = quantifiedPredicate.getFactory();
+			//making a bound identifier which can letter be used with the new identifier
 			BoundIdentifier newBoundIdentifier = ff.makeBoundIdentifier(quantifiers.length, null);
+			//assigning the new identifier a name, 
 			BoundIdentDecl newBoundIdentDecl = ff.makeBoundIdentDecl(newIdentifier, newBoundIdentifier.getSourceLocation());
 			Expression newIdentifierExpression = (Expression) newBoundIdentifier;
 			
-			
+			//creating the belongs to statement using the new identifier, i.e. z ∈ A
 			RelationalPredicate relationalPredicateIn = ff.makeRelationalPredicate(Formula.IN, newIdentifierExpression, expressions.get(2), null);
 			
+			//creating and assigning the projection function prj1 and prj2 then assigning them as a function => prj1(z) and prj2(z)
 			AtomicExpression atomicExpressionPrjOne = ff.makeAtomicExpression(Formula.KPRJ1_GEN, null);
 			AtomicExpression atomicExpressionPrjTwo = ff.makeAtomicExpression(Formula.KPRJ2_GEN, null);
 			BinaryExpression binaryExpressionPrjOneFun = ff.makeBinaryExpression(Formula.FUNIMAGE, atomicExpressionPrjOne, newIdentifierExpression, null);
 			BinaryExpression binaryExpressionPrjTwoFun = ff.makeBinaryExpression(Formula.FUNIMAGE, atomicExpressionPrjTwo, newIdentifierExpression, null);
 			
-			
+			//assigning the projection function to the quantified variables, i.e. a = prj1(z) and b = prj2(z)
 			RelationalPredicate relationalPredicateEqualOne = ff.makeRelationalPredicate(Formula.EQUAL, expressions.get(0), binaryExpressionPrjOneFun, null);
 		    RelationalPredicate relationalPredicateEqualTwo = ff.makeRelationalPredicate(Formula.EQUAL, expressions.get(1), binaryExpressionPrjTwoFun, null);
 		    
 			
-		   
+		   //adding all the newly creating expressions to the associtive predicate list
 			associativePredicateList.add(relationalPredicateIn);
 			associativePredicateList.add(relationalPredicateEqualOne);
 			associativePredicateList.add(relationalPredicateEqualTwo);
-			
+			//adding the remaining items to from chi to associative predicate list
 			if(chi.size() > 0)
 			{
 				for(int i = 0; i < chi.size(); i++)
@@ -1301,7 +1321,7 @@ public String transformPairs(QuantifiedPredicate quantifiedPredicate, ArrayList<
 					associativePredicateList.add(chi.get(i));
 				}
 			}
-			
+			//adding the newly created identifier to the list of BoundIdentDeclaration list
 			listBoundIdentDecl.add(newBoundIdentDecl);
 			
 			for(int i =0 ; i< quantifiers.length; i++)
@@ -1309,9 +1329,11 @@ public String transformPairs(QuantifiedPredicate quantifiedPredicate, ArrayList<
 				listBoundIdentDecl.add(quantifiers[i]);
 			}
 			
-			
+			//creating the associative predicate from the expressions using the logical and connector, the result is z ∈ A ∧ x = prj1(z) ∧ y = prj2(z)
 			AssociativePredicate finalAssociativeFormula = ff.makeAssociativePredicate(Formula.LAND, associativePredicateList, null);
+			//creating the implication using Logical implication to join the right and left side of the formula, the result is z ∈ A ∧ x = prj1(z) ∧ y = prj2(z) ⇒ (……)
 			BinaryPredicate transformedPredicate = ff.makeBinaryPredicate(Formula.LIMP, finalAssociativeFormula, RightPredicate, null);
+			//finally adding the quantified variables to create the quantified predicate, the final result is ∀x, y, z · z ∈ A ∧ x = prj1(z) ∧ y = prj2(z) ⇒ (……)
 			QuantifiedPredicate transformedQunatifiedPredicate = ff.makeQuantifiedPredicate(tag, listBoundIdentDecl, transformedPredicate, null);
 					
 			finalResult = parsePredicate(transformedQunatifiedPredicate);
@@ -1320,30 +1342,53 @@ public String transformPairs(QuantifiedPredicate quantifiedPredicate, ArrayList<
 }
 
 
+//This function is used in the process of transforming in case when a pair is used as a domain
+//In this process we need to generate new quantified variable, this where it happens.
+//takes an array of quantifiers and free identifiers in the specification and returns a new quantified variable
+//the new identifier needs to something unique, i.e. it should not occur in the specification a new identifier needs to be added on
+//so we take a letter from a - z and compare it with quantifiers and free identifiers and if the letter is not present
+//in the specification it is used as a new identifier or quantified varibale
+
 public String newIdentifierBuilder(BoundIdentDecl[] quantifiers, FreeIdentifier[] freeIds)
 {
+	//empty string for the new identifier or quantified variable
 	String newIdentifier ="";	
 	List<String> listChar = new ArrayList<>();
+	
+	// free id is the free identifiers in the specification
 	FreeIdentifier[] freeId = freeIds;
+	
+	//listChar is the alphabets from a - z 
 	for (int i = 0; i <= 26; i++) {
         char c = (char) (i + 'a');
         listChar.add(String.valueOf(c));
     }
 	
+	//identifiers pool is a collection of free identifiers and quantifiers in the specification in short freeIds  + quantifiers
+	
 	ArrayList<String> identifiersPool = new ArrayList<>();
     
+	//adding quantifier to the identifiers pool
+	
     for(int i = 0; i < quantifiers.length; i++)
 	{
 	    identifiersPool.add(quantifiers[i].toString());
 	}
+    
+    //adding freed identifiers to the identifiers pool
+    
 	for(int j = 0; j < freeId.length; j++)
 	{
 	    identifiersPool.add(freeId[j].toString());
 	}
 	
-	listChar.removeAll(identifiersPool);
-	newIdentifier = listChar.get(0);
+	//removing all the instances that are found in identifiers pool from listChar or a - z, the remaining values are unique letter which
+	//doesn't exist in the specification
 	
+	listChar.removeAll(identifiersPool);
+	//finally assign the first value from the remaining list of characters and return it as a new identifier
+	
+	newIdentifier = listChar.get(0);
 	return newIdentifier;
 }
 public void parseRightPair(Predicate rightPredicate, ArrayList result, ArrayList projection)
