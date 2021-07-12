@@ -1003,15 +1003,25 @@ public class BSimuFormula {
 		return returnedFinalFormula;
 }
 	
+/* This function is used to transform quantified predicates which have the dependency of quantified variable issue in them
+ * The function take the quantified predicate a lists of dependent quantified variables and independent quantified variables
+ * The return value of this function JavaScript translation of the transformed quantified predicate 	
+ */
+	
 private String transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredicate, List<String> dependentQuantifiers, List<String> independentQuantifiers) {
-
+			//The first step is to get the predicate from the quantified predicate ∀x, y · x ∈ A ∧ y ∈ B(x) ⇒ (……)
+			//getPredicate function returns x ∈ A ∧ y ∈ B(x) ⇒ (……)
 			Predicate predicate = quantifiedPredicate.getPredicate();
-			//Expression expression = quantifiedExpression.getExpression();
+			//Put all the quantified variable in the specification, i.e. x and y
 			BoundIdentDecl[] quantifiers = quantifiedPredicate
 					.getBoundIdentDecls();
+			//The exchange table is used to map the quantifiers from a character to integers to build the edge graph
 			HashMap<String, Integer> exchangeTable = new HashMap<String, Integer>();
+			//the tag indicates the type of the formula. in this case a quantified predicate
 			int tag = predicate.getTag();
+			//the final result of the translation aka the javascript 
 			String result;
+			//ordered list is an array of integers returned from the topological sort
 			ArrayList<Integer> orderedList = new ArrayList<Integer>();
 			ArrayList<ArrayList<BoundIdentDecl>> Identifiers = new ArrayList<ArrayList<BoundIdentDecl>>();
 			ArrayList<ArrayList<Predicate>> Predicates = new ArrayList<ArrayList<Predicate>>();
@@ -1025,34 +1035,35 @@ private String transformQuantifiedPredicate(QuantifiedPredicate quantifiedPredic
 			int IdentifierCurrentIndex;
 			int identifierNewIndex;
 			
+			//creating a new instance of a graph from the graph class
 			Graph g =  new Graph(quantifiers.length);
+			//mapping quantified variable to integer values to build the edge graph
 			for(int z = 0; z < quantifiers.length; z++)
 			{
 				exchangeTable.put(quantifiers[z].toString(), z);
 			}
-		
+			//adding the dependent and independent variables as an edge from the exchange table and dependent and independent quantifiers
 			for(int it = 0; it < independentQuantifiers.size(); it++)
 			{
 						g.addEdge(exchangeTable.get(independentQuantifiers.get(it)),exchangeTable.get(dependentQuantifiers.get(it)));
 			
 			}
 			
-			
+			//result of the topographic sort
 			orderedList = g.top_sort();
-			HashSet groups = new HashSet();
-			groups.add(orderedList);
-			int groupSize = groups.size();
+			//counting the number of unique items in the array
 			long n = orderedList.stream().distinct().count();
 			
 			for (int i = 0; i < n; i++)
 			{
 		        Identifiers.add(new ArrayList<BoundIdentDecl>());
 			}
+			//Remapping ordered quantified variables from integers to characters 
 		    for(int i = 0; i < orderedList.size(); i++)
 			{
 				Identifiers.get(orderedList.get(i)).add(quantifiers[i]);
 			}
-		    
+		    //check if the predicate is an instance of a binary predicate
 		    if (predicate instanceof BinaryPredicate) { // forAll implication
 				
 		    	Predicate leftPredicate = ((BinaryPredicate) predicate).getLeft();
