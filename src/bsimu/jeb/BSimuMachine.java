@@ -279,19 +279,25 @@ public class BSimuMachine {
 					+ parameterDisabled
 					+ " id='"
 					+ id
-					+ ".parameter' name='parameterCheckbox' onclick='jeb.ui.updateEvent(this.id)'> Parameters |"
+					+ ".parameter' name='parameterCheckbox' onclick='jeb.ui.updateEvent(this.id)'> <label for='"
+					+ id
+					+ ".parameter'>Parameters</label> |"
 					+ IBSimu.NEWLINE);
 			html.append("<input type='checkbox' "
 					+ guardDisabled
 					+ " id='"
 					+ id
-					+ ".guard' name='guardCheckbox' onclick='jeb.ui.updateEvent(this.id)'> Guards |"
+					+ ".guard' name='guardCheckbox' onclick='jeb.ui.updateEvent(this.id)'> <label for='"
+					+ id
+					+ ".guard'>Guards</label> |"
 					+ IBSimu.NEWLINE);
 			html.append("<input type='checkbox' "
 					+ actionDisabled
 					+ " id='"
 					+ id
-					+ ".action' name='actionCheckbox' onclick='jeb.ui.updateEvent(this.id)'> Actions "
+					+ ".action' name='actionCheckbox' onclick='jeb.ui.updateEvent(this.id)'> <label for='"
+					+ id
+					+ ".action'>Actions</label> "
 					+ IBSimu.NEWLINE);
 			//Champ pour gestion du choix des actions auto
 			//Field for automatic action scheduler management
@@ -347,13 +353,13 @@ public class BSimuMachine {
 		htmlOut.println("<table width='100%' style='background-color:#f0f0f0;'>");
 		htmlOut.println("<tr>");
 		htmlOut.println("<td>");
-		htmlOut.println("<input type='checkbox' id='jeb.ui.CODE_TIP_DISPLAY' onclick='jeb.ui.update(this.id)'> Show code tip |");
-		htmlOut.println("<input type='checkbox' id='jeb.ui.PARAMETERS_DISPLAY' onclick='jeb.ui.update(this.id)'> Show parameters |");
-		htmlOut.println("<input type='checkbox' id='jeb.ui.GUARDS_DISPLAY' onclick='jeb.ui.update(this.id)'> Show guards |");
-		htmlOut.println("<input type='checkbox' id='jeb.ui.ACTIONS_DISPLAY' onclick='jeb.ui.update(this.id)'> Show actions |");
-		htmlOut.println("<input type='checkbox' id='jeb.ui.SCENARIO_ENABLED' onclick='jeb.ui.update(this.id)'> Enable scenario |");
+		htmlOut.println("<input type='checkbox' id='jeb.ui.CODE_TIP_DISPLAY' onclick='jeb.ui.update(this.id)'> <label for='jeb.ui.CODE_TIP_DISPLAY'>Show code tip</label> |");
+		htmlOut.println("<input type='checkbox' id='jeb.ui.PARAMETERS_DISPLAY' onclick='jeb.ui.update(this.id)'> <label for='jeb.ui.PARAMETERS_DISPLAY'>Show parameters</label> |");
+		htmlOut.println("<input type='checkbox' id='jeb.ui.GUARDS_DISPLAY' onclick='jeb.ui.update(this.id)'> <label for='jeb.ui.GUARDS_DISPLAY'>Show guards</label> |");
+		htmlOut.println("<input type='checkbox' id='jeb.ui.ACTIONS_DISPLAY' onclick='jeb.ui.update(this.id)'> <label for='jeb.ui.ACTIONS_DISPLAY'>Show actions</label> |");
+		htmlOut.println("<input type='checkbox' id='jeb.ui.SCENARIO_ENABLED' onclick='jeb.ui.update(this.id)'> <label for='jeb.ui.SCENARIO_ENABLED'>Enable scenario</label> |");
 		//enable probability
-		htmlOut.println("<input type='checkbox' id='jeb.ui.PROBABILITY_ENABLED' onclick='jeb.ui.update(this.id)'> Enable Probability |");
+		htmlOut.println("<input type='checkbox' id='jeb.ui.PROBABILITY_ENABLED' onclick='jeb.ui.update(this.id)'> <label for='jeb.ui.PROBABILITY_ENABLED'>Enable Probability</label> |");
 		htmlOut.println("Timer interval: <input type='text' style='width:60px' id='jeb.ui.TIMER_INTERVAL' value='100' onblur='jeb.ui.update(this.id)' onkeypress='event.keyCode==13&&jeb.ui.update(this.id)'> |");
 		htmlOut.println("Max try arguments: <input type='text' style='width:60px' id='jeb.ui.MAX_TRY_ARGUMENTS' value='10' onblur='jeb.ui.update(this.id)'  onkeypress='event.keyCode==13&&jeb.ui.update(this.id)'>");
 		htmlOut.println("</td>");
