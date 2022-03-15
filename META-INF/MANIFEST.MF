@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Event-B simulator generator
+Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: fr.loria.dedale.bsimu.jeb;singleton:=true
 Bundle-Version: 0.6.5
-Bundle-Vendor: LORIA Dedale team
+Bundle-Vendor: %Bundle-Vendor
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Activator: bsimu.jeb.Activator
 Require-Bundle: org.eclipse.ui;bundle-version="3.106.0",

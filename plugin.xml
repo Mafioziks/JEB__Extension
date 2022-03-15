@@ -4,7 +4,7 @@
     <extension point="org.eclipse.ui.commands">
     	<command
     		id="fr.loria.dedale.bsimu.jeb.generateCommand"
-    		description="Generate JeB simulators">
+    		description="%command.description">
     	</command>
     </extension>
 	<extension point="org.eclipse.ui.handlers">
@@ -21,9 +21,9 @@
              <command
                    commandId="fr.loria.dedale.bsimu.jeb.generateCommand"
                    id="fr.loria.dedale.bsimu.jeb.toolbars.sampleToolbar.sampleCommand"
-                   label="JeB"
+                   label="%command.label"
                    style="push"
-                   tooltip="Generate simulators">
+                   tooltip="%command.tooltip">
              </command>
           </toolbar>
        </menuContribution>

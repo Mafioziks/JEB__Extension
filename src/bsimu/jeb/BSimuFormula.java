@@ -1402,7 +1402,7 @@ public String newIdentifierBuilder(BoundIdentDecl[] quantifiers, FreeIdentifier[
 	newIdentifier = listChar.get(0);
 	return newIdentifier;
 }
-public void parseRightPair(Predicate rightPredicate, ArrayList result, ArrayList projection)
+public void parseRightPair(Predicate rightPredicate, ArrayList<Expression> result, ArrayList<String> projection)
 {
 	Predicate predicate = rightPredicate;
 	FormulaFactory rp = rightPredicate.getFactory();
