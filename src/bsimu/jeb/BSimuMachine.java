@@ -330,6 +330,7 @@ public class BSimuMachine {
 			htmlOut.println("<?php header('Content-Type: text/html; charset=utf-8');?>");
 		}
 
+		htmlOut.println("<!DOCTYPE html>");
 		htmlOut.println("<html>");
 
 		// start head
