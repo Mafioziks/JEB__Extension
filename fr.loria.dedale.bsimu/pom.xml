@@ -1,0 +1,31 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>fr.loria.dedale</groupId>
+		<artifactId>root</artifactId>
+		<version>0.6.6-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>fr.loria.dedale.bsimu</artifactId>
+	<version>0.6.6-SNAPSHOT</version>
+	<packaging>eclipse-plugin</packaging>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>res</directory>
+			</resource>
+			<resource>
+				<directory>.</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>plugin.xml</include>
+					<include>OSGI-INF</include>
+					<include>META-INF</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+</project>
