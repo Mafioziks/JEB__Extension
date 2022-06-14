@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>    
-    <extension point="org.eclipse.ui.commands">
+   <extension point="org.eclipse.ui.commands">
     	<command
-    		id="fr.loria.dedale.bsimu.jeb.generateCommand"
-    		description="%command.description">
+         id="fr.loria.dedale.bsimu.jeb.generateCommand"
+         name="%command.name"
+         description="%command.description">
     	</command>
-    </extension>
+   </extension>
 	<extension point="org.eclipse.ui.handlers">
        <handler
              class="fr.loria.dedale.bsimu.jeb.JeBHandler"

@@ -67,7 +67,7 @@ public class BSimuProject {
 	private void outputLibFile(String fileName) {
 		URL url;
 		try {
-			url = new URL("platform:/plugin/fr.loria.dedale.bsimu.jeb/lib/" + fileName);
+			url = new URL("platform:/plugin/fr.loria.dedale.bsimu/lib/" + fileName);
 			InputStream inputStream = url.openConnection().getInputStream();
 			BufferedReader inFile = new BufferedReader(new InputStreamReader(
 					inputStream));

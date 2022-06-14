@@ -39,7 +39,7 @@ public class ExceptionHandler {
 	public void handleException(Exception e){
 
 		// Create a new status
-		Status status = new Status(IStatus.ERROR, "fr.loria.dedale.bsimu.jeb", e.getMessage());
+		Status status = new Status(IStatus.ERROR, "fr.loria.dedale.bsimu", e.getMessage());
 		// Display error
 		StatusManager.getManager().handle(status);
 		

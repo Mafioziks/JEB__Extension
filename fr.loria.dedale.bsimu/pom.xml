@@ -17,15 +17,6 @@
 			<resource>
 				<directory>res</directory>
 			</resource>
-			<resource>
-				<directory>.</directory>
-				<filtering>true</filtering>
-				<includes>
-					<include>plugin.xml</include>
-					<include>OSGI-INF</include>
-					<include>META-INF</include>
-				</includes>
-			</resource>
 		</resources>
 	</build>
 </project>
