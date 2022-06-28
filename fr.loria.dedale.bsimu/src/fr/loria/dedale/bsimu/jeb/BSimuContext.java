@@ -251,6 +251,7 @@ public class BSimuContext {
 		htmlOut.println("<div id='jeb.ui.tip' style='background-color:#ffffcc;position:absolute;visibility:hidden;padding:5px'></div>");
 
 		// include *.js
+		htmlOut.println("<script type='text/javascript'"/* defer='defer' */+ " src='fabric.min.js'></script>");
 		htmlOut.println("<script type='text/javascript'"/* defer='defer' */+ " src='biginteger.js'></script>");
 		htmlOut.println("<script type='text/javascript'"/* defer='defer' */+ " src='jeb.js'></script>");
 		htmlOut.println("<script type='text/javascript'"/* defer='defer' */+ " src='set.js'></script>");

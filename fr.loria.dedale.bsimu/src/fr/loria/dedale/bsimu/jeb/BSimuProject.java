@@ -162,6 +162,7 @@ public class BSimuProject {
 				newFile.createNewFile();
 			}
 			// output lib files
+			outputLibFile("fabric.min.js");
 			outputLibFile("biginteger.js");
 			outputLibFile("jeb.js");
 			outputLibFile("set.js");

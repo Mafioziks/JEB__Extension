@@ -417,6 +417,7 @@ public class BSimuMachine {
 
 		// defer='defer' starts here
 		// include *.js
+		htmlOut.println("<script type='text/javascript' src='fabric.min.js'></script>");
 		htmlOut.println("<script type='text/javascript' src='biginteger.js'></script>");
 		htmlOut.println("<script type='text/javascript' src='jeb.js'></script>");
 		htmlOut.println("<script type='text/javascript' src='set.js'></script>");
