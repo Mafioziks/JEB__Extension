@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    - tags
+
+jobs:
+  build-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: "11"
+          distribution: "temurin"
+          server-id: github
+          settings-path: ${{ github.workspace }}
+
+      - name: Download Rodin dev package
+        run: wget -O /var/tmp/org.rodinp.dev-3.6.0-77c344946.zip https://sourceforge.net/projects/rodin-b-sharp/files/Core_Rodin_Platform/3.6/org.rodinp.dev-3.6.0-77c344946.zip/download
+
+      - name: Get tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+        with:
+          strip_v: true
+
+      - name: Replace version in manifest file
+        run: sed '/^Bundle-Version:/ s/[[:digit:]][[:digit:]]*.[[:digit:]][[:digit:]]*.[[:digit:]][[:digit:]]*.qualifier/'${{ steps.tag.outputs.tag }}'.qualifier/g' -i fr.loria.dedale.bsimu/META-INF/MANIFEST.MF
+
+      - name: Build with Maven
+        run: mvn -Dtycho.localArtifacts=ignore -DforceContextQualifier="$(git log -1 --format='%h')" -Dplugin.version.number=${{ steps.tag.outputs.tag }} clean package
+
+      - name: Publish
+        run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml -Dplugin.version.number=${{ steps.tag.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+# TODO: Move common build part to build sub-workflow and reuse it here
+# - name: "Build Tag release"
+#   uses: ./.github/workflows/build.yml@v1
+#   with:
+#     version: ${{ steps.tag.outputs.tag }}
