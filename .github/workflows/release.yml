@@ -17,6 +17,9 @@ jobs:
           server-id: github
           settings-path: ${{ github.workspace }}
 
+      - name: Download Rodin dev package
+        run: wget -O /var/tmp/org.rodinp.dev-3.6.0-77c344946.zip https://sourceforge.net/projects/rodin-b-sharp/files/Core_Rodin_Platform/3.6/org.rodinp.dev-3.6.0-77c344946.zip/download
+
       - name: Build with Maven
         run: mvn -Dtycho.localArtifacts=ignore -DforceContextQualifier="$(git log -1 --format='%h')" clean package
 
