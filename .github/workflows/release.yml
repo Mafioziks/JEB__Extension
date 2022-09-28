@@ -39,6 +39,6 @@ jobs:
         run: mvn -Dtycho.localArtifacts=ignore -DforceContextQualifier="$(git log -1 --format='%h')" -Dplugin.version.number=${{ steps.semvers.outputs.patch }} clean package
 
       - name: Publish
-        run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+        run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml -Dplugin.version.number=${{ steps.semvers.outputs.patch }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
