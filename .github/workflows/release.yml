@@ -20,8 +20,23 @@ jobs:
       - name: Download Rodin dev package
         run: wget -O /var/tmp/org.rodinp.dev-3.6.0-77c344946.zip https://sourceforge.net/projects/rodin-b-sharp/files/Core_Rodin_Platform/3.6/org.rodinp.dev-3.6.0-77c344946.zip/download
 
+      - name: "Get Previous tag"
+        id: previoustag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        with:
+          fallback: 0.6.6
+
+      - name: "Get next minor version"
+        id: semvers
+        uses: "WyriHaximus/github-action-next-semvers@v1"
+        with:
+          version: ${{ steps.previoustag.outputs.tag }}
+
+      - name: Replace version in manifest file
+        run: sed '/^Bundle-Version:/ s/[[:digit:]][[:digit:]]*.[[:digit:]][[:digit:]]*.[[:digit:]][[:digit:]]*.qualifier/'${{ steps.semvers.outputs.patch }}'.qualifier/g' -i fr.loria.dedale.bsimu/META-INF/MANIFEST.MF
+
       - name: Build with Maven
-        run: mvn -Dtycho.localArtifacts=ignore -DforceContextQualifier="$(git log -1 --format='%h')" clean package
+        run: mvn -Dtycho.localArtifacts=ignore -DforceContextQualifier="$(git log -1 --format='%h')" -Dplugin.version.number=${{ steps.semvers.outputs.patch }} clean package
 
       - name: Publish
         run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml

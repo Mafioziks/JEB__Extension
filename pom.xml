@@ -5,7 +5,7 @@
 
 	<groupId>fr.loria.dedale</groupId>
 	<artifactId>root</artifactId>
-	<version>0.6.6-SNAPSHOT</version>
+	<version>${plugin.version.number}-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	 <distributionManagement>
@@ -31,6 +31,7 @@
 
 		<!-- TO BE CONFIGURED WHEN CALLING MAVEN USING OPTION -D -->
 		<rodinTargetSiteUrl>jar:file:/var/tmp/org.rodinp.dev-3.6.0-77c344946.zip!/</rodinTargetSiteUrl>
+		<plugin.version.number>0.6.6</plugin.version.number>
 	</properties>
 
 	<modules>
