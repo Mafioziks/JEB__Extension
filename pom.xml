@@ -8,6 +8,22 @@
 	<version>0.6.6-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
+	 <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Jeb Extension</name>
+            <url></url>
+        </repository>
+    </distributionManagement>
+
+	<scm>
+        <connection>scm:git:git://github.com/Mafioziks/JEB__Extension.git</connection>
+        <developerConnection>scm:git:https://github.com/Mafioziks/JEB__Extension.git
+        </developerConnection>
+        <url>https://github.com/Mafioziks/JEB__Extension</url>
+        <tag>JEB__Extension</tag>
+    </scm>
+
 	<properties>
 		<tycho-version>2.5.0</tycho-version>
 		<maven-resources-plugin-version>2.6</maven-resources-plugin-version>
